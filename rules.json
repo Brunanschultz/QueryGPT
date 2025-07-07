@@ -1,0 +1,131 @@
+{
+    "boasPraticas": [
+        {
+            "id": "1",
+            "descricao": "Tipagem para Divisões-: Sempre use `CAST(... AS DECIMAL)` para garantir divisões precisas. Para cálculos de porcentagem, multiplique por `1.0` no numerador antes da divisão para forçar a precisão decimal.",
+            "exemplo": {
+                "correto": "SELECT CAST(valor AS DECIMAL) / CAST(total AS DECIMAL) * 100 FROM vendas;",
+                "incorreto": "SELECT valor / total * 100 FROM vendas;"
+            }
+        },
+        {
+            "id": "2",
+            "descricao": "Validação de Datas-: O campo `ID_MES` está no formato numérico `YYYYMMDD`. Ao usá-lo em comparações, não é necessário envolver os valores entre aspas, pois são `bigint`. Para intervalos de datas, use `BETWEEN`.",
+            "exemplo": {
+                "correto": "SELECT * FROM vendas WHERE ID_MES BETWEEN 20230101 AND 20231231;",
+                "incorreto": "SELECT * FROM vendas WHERE ID_MES BETWEEN '20230101' AND '20231231';"}
+        },
+        {
+            "id": "3",
+            "descricao": "Aplicação de Filtros: Todas as condições especificadas na pergunta (e.g., produto, segmento, período) DEVEM ser aplicadas consistentemente em TODAS as partes da query, incluindo subqueries e cláusulas",
+            "exemplo": {
+                "correto": "SELECT * FROM vendas WHERE produto = 'A' AND segmento = 'B' AND ID_MES BETWEEN 20230101 AND 20231231;",
+                "incorreto": "SELECT * FROM vendas WHERE produto = 'A' AND ID_MES BETWEEN 20230101 AND 20231231; -- Falta filtro de segmento"
+            }
+        },
+        {
+            "id": "4",
+            "descricao": "Uso de Funções de Agregação: Sempre use funções de agregação como `SUM`, `AVG`, `COUNT` para calcular totais, médias e contagens. Evite fazer cálculos diretamente nas colunas sem agregação.",
+            "exemplo": {
+                "correto": "SELECT produto, SUM(valor) AS total_vendas FROM vendas GROUP BY produto;",
+                "incorreto": "SELECT produto, valor FROM vendas;"}
+        },
+        {
+            "id": "5",
+            "descricao": "Uso de JOINs: Sempre use `JOIN` para combinar tabelas relacionadas. Evite subconsultas desnecessárias que podem ser substituídas por `JOIN`.",
+            "exemplo": {
+                "correto": "SELECT v.*, p.nome FROM vendas v JOIN produtos p ON v.produto_id = p.id;",
+                "incorreto": "SELECT * FROM vendas WHERE produto_id IN (SELECT id FROM produtos);"}
+        },
+        {
+            "id": "6",
+            "descricao": "Uso de Aliases: Use aliases para tabelas e colunas para melhorar a legibilidade da query. Evite nomes longos ou complexos.",
+            "exemplo": {
+                "correto": "SELECT v.valor AS total_vendas FROM vendas v;",
+                "incorreto": "SELECT vendas.valor AS total_vendas FROM vendas;"}
+        },
+        {
+            "id": "7",
+            "descricao": "Divisão por Zero-: -NUNCA- faça divisão sem usar `NULLIF` no denominador para prevenir erros de divisão por zero.",
+            "exemplo": {
+                "correto": "SELECT valor / NULLIF(total, 0) AS taxa FROM vendas;",
+                "incorreto": "SELECT valor / total AS taxa FROM vendas;"
+            }
+        },
+        {
+            "id": "8",
+            "descricao": "Porcentagens-: Para resultados em porcentagem, sempre multiplique o valor final por `100`.",
+            "exemplo": {
+                "correto": "SELECT (SUM(valor) / NULLIF(SUM(total), 0)) * 100 AS porcentagem FROM vendas;",
+                "incorreto": "SELECT SUM(valor) / SUM(total) AS porcentagem FROM vendas;"
+            }
+        },
+        {
+            "id": "9",
+            "descricao": "Uso de `DISTINCT`: Use `DISTINCT` apenas quando necessário para evitar duplicatas. Evite seu uso excessivo, pois pode impactar a performance.",
+            "exemplo": {
+                "correto": "SELECT DISTINCT produto FROM vendas;",
+                "incorreto": "SELECT produto FROM vendas;"
+            }
+        },
+        {
+            "id": "10",
+            "descricao": "Ordenação: Use `ORDER BY` para ordenar os resultados. Sempre especifique a coluna pela qual deseja ordenar.",
+            "exemplo": {
+                "correto": "SELECT * FROM vendas ORDER BY ID_MES DESC;",
+                "incorreto": "SELECT * FROM vendas;"
+            }
+        },
+        {
+            "id": "11",
+            "descricao": "Limitação de Resultados: Use `LIMIT` para restringir o número de resultados retornados. Isso é útil para evitar sobrecarga de dados.",
+            "exemplo": {
+                "correto": "SELECT * FROM vendas LIMIT 100;",
+                "incorreto": "SELECT * FROM vendas;"
+            }
+        },
+        {
+            "id": "12",
+            "descricao": "Arredondamento-: Ao apresentar resultados de porcentagem ou médias que exijam casas decimais, utilize `ROUND(valor, 2)` para arredondar para duas casas decimais.",
+            "exemplo": {
+                "correto": "SELECT ROUND((SUM(valor) / NULLIF(SUM(total), 0)) * 100, 2) AS porcentagem FROM vendas;",
+                "incorreto": "SELECT (SUM(valor) / NULLIF(SUM(total), 0)) * 100 AS porcentagem FROM vendas;"
+            }
+        }
+    ],
+
+    "regrasNegocio": [
+        {
+            "id": "1",
+            "descricao": "Segmentos Válidos: Verifique sempre o campo `NM_SUBSEGMENTO` ou `CD_SEGMENTO` conforme a pergunta indicar",
+            "exemplo": {
+                "correto": "SELECT NM_SUBSEGMENTO FROM fisicos;",
+                "incorreto": "SELECT FL_VIVOONE FROM fisicos;"
+            }
+        },
+        {
+            "id": "2",
+            "descricao": "Parque/Planta-: Os termos 'parque' e 'planta' são equivalentes e ambos se referem à quantidade de físicos ativos, onde `TP_MOVIMENTO = 'PARQUE'",
+            "exemplo": {
+                "correto": "SELECT COUNT(*) FROM fisicos WHERE TP_MOVIMENTO = 'PARQUE';",
+                "incorreto": "SELECT COUNT(*) FROM fisicos WHERE TP_MOVIMENTO = 'PLANTA';"
+            }
+        },
+        {
+            "id": "3",
+            "descricao": "Churn (ou taxa de cancelamento) é calculada como a soma da quantidade de físicos cujo `TP_MOVIMENTO = 'BAIXA'` dividida pela soma da quantidade de físicos cujo `TP_MOVIMENTO = 'PARQUE'`. Multiplique o resultado por `100` para obter a porcentagem.",
+            "exemplo": {
+                "correto": "SELECT (SUM(CASE WHEN TP_MOVIMENTO = 'BAIXA' THEN 1 ELSE 0 END) / NULLIF(SUM(CASE WHEN TP_MOVIMENTO = 'PARQUE' THEN 1 ELSE 0 END), 0)) * 100 AS churn FROM fisicos;",
+                "incorreto": "SELECT SUM(TP_MOVIMENTO = 'BAIXA') / SUM(TP_MOVIMENTO = 'PARQUE') * 100 AS churn FROM fisicos;"
+            }
+        },
+        {
+            "id": "4",
+            "descricao": "Para clareza, o cálculo da taxa de churn para um período (e.g., trimestre, ano) DEVE ser feito agregando-se os totais de BAIXA e PARQUE de todo o período ANTES da divisão. Ou seja, é (SUM(BAIXA do período) / SUM(PARQUE do período)) * 100, e NUNCA a média das taxas de churn calculadas mensalmente dentro desse período, a menos que solicitado expressamente.",
+            "exemplo": {
+                "correto": "SELECT (SUM(CASE WHEN TP_MOVIMENTO = 'BAIXA' AND ID_MES BETWEEN 20230101 AND 20231231 THEN 1 ELSE 0 END) / NULLIF(SUM(CASE WHEN TP_MOVIMENTO = 'PARQUE' AND ID_MES BETWEEN 20230101 AND 20231231 THEN 1 ELSE 0 END), 0)) * 100 AS churn FROM fisicos;",
+                "incorreto": "SELECT AVG((SUM(CASE WHEN TP_MOVIMENTO = 'BAIXA' THEN 1 ELSE 0 END) / NULLIF(SUM(CASE WHEN TP_MOVIMENTO = 'PARQUE' THEN 1 ELSE 0 END), 0)) * 100) AS churn FROM fisicos GROUP BY ID_MES;"
+            }
+        }
+    ]
+}
