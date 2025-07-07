@@ -14,7 +14,7 @@ class ColumnPruneAgent:
             "response_mime_type": "application/json", # Ensures the output is valid JSON
         }
         self.model = genai.GenerativeModel(
-            'gemini-1.5-flash-latest',
+            'gemini-2.0-flash',
             generation_config=generation_config
         )
         self.schema_info = schema_info
@@ -44,5 +44,6 @@ class ColumnPruneAgent:
         """
 
         response = self.model.generate_content(prompt)
+
         # The response.text will be a JSON string due to the response_mime_type config
         return json.loads(response.text)
