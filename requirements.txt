@@ -1,0 +1,6 @@
+generativeai
+typing
+pandas
+sentence_transformers
+scikit-learn
+google.generativeai
