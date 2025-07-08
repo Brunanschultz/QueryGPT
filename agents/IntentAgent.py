@@ -20,7 +20,7 @@ class IntentAgent:
             generation_config=generation_config
         )
         # Define possible workspaces
-        self.workspaces = ["customer_analysis", "order_processing", "inventory_management", "sales_analytics"]
+        self.workspaces = ["fisicos","outro"]
 
     def determine_intent(self, user_query: str) -> dict:
         """Map user's natural language query to a workspace(s)"""

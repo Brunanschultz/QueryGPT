@@ -1,16 +1,16 @@
 {
     "boasPraticas": [
         {
-            "id": "1",
-            "descricao": "Tipagem para Divisões-: Sempre use `CAST(... AS DECIMAL)` para garantir divisões precisas. Para cálculos de porcentagem, multiplique por `1.0` no numerador antes da divisão para forçar a precisão decimal.",
-            "exemplo": {
-                "correto": "SELECT CAST(valor AS DECIMAL) / CAST(total AS DECIMAL) * 100 FROM vendas;",
-                "incorreto": "SELECT valor / total * 100 FROM vendas;"
-            }
+        "id": "1",
+        "descricao": "Para cálculos envolvendo divisão de agregados e multiplicação por 100, use parênteses para envolver toda a operação antes de aplicar a função ROUND. Para cálculos de porcentagem, multiplique por 1.0 no numerador antes da divisão para forçar a precisão decimal. Use NULLIF no denominador para evitar divisão por zero.",
+        "exemplo": {
+            "correto": "SELECT ROUND((SELECT SUM(QT_FISICO) * 1.0 FROM fisicos WHERE TP_MOVIMENTO = 'BAIXA' AND DS_PRODUTO = 'BANDA LARGA' AND ID_MES BETWEEN 20250101 AND 20250331) / NULLIF((SELECT SUM(QT_FISICO) FROM fisicos WHERE TP_MOVIMENTO = 'PARQUE' AND DS_PRODUTO = 'BANDA LARGA' AND ID_MES BETWEEN 20250101 AND 20250331), 0) * 100, 2) AS resultado_percentual;",
+            "incorreto": "SELECT ROUND(CAST(valor AS DECIMAL) / CAST(total AS DECIMAL) * 100 FROM vendas;"
+        }
         },
         {
             "id": "2",
-            "descricao": "Validação de Datas-: O campo `ID_MES` está no formato numérico `YYYYMMDD`. Ao usá-lo em comparações, não é necessário envolver os valores entre aspas, pois são `bigint`. Para intervalos de datas, use `BETWEEN`.",
+            "descricao": "Validação de Datas: O campo `ID_MES` está no formato numérico `YYYYMMDD`. Ao usá-lo em comparações, não é necessário envolver os valores entre aspas, pois são `bigint`. Para intervalos de datas, use `BETWEEN`.",
             "exemplo": {
                 "correto": "SELECT * FROM vendas WHERE ID_MES BETWEEN 20230101 AND 20231231;",
                 "incorreto": "SELECT * FROM vendas WHERE ID_MES BETWEEN '20230101' AND '20231231';"}
@@ -91,13 +91,28 @@
                 "correto": "SELECT ROUND((SUM(valor) / NULLIF(SUM(total), 0)) * 100, 2) AS porcentagem FROM vendas;",
                 "incorreto": "SELECT (SUM(valor) / NULLIF(SUM(total), 0)) * 100 AS porcentagem FROM vendas;"
             }
+        },
+        {
+            "id": "13",
+            "descricao": "Sempre que for feita comparação entre valores de campos de texto (VARCHAR, TEXT, etc.), aplique a função UPPER() dos dois lados da comparação para garantir insensibilidade a maiúsculas/minúsculas",
+            "exemplo": {
+                "correto": "SELECT SUM(QT_FISICO) FROM fisicos WHERE UPPER(NM_SUBSEGMENTO) = UPPER('One');",
+                "incorreto": "SELECT SUM(QT_FISICO) FROM fisicos WHERE NM_SUBSEGMENTO = 'one';"
+            }
+        },
+        {
+            "id": "14",
+            "descricao": "Sempre que for feita comparação entre valores de campos de texto (VARCHAR, TEXT, etc.), aplique a função UPPER() dos dois lados da comparação para garantir insensibilidade a maiúsculas/minúsculas",
+            "exemplo": {
+                "correto": "SELECT SUM(QT_FISICO) FROM fisicos WHERE UPPER(NM_SUBSEGMENTO) = UPPER('One');",
+                "incorreto": "SELECT SUM(QT_FISICO) FROM fisicos WHERE NM_SUBSEGMENTO = 'one';"
+            }
         }
     ],
-
     "regrasNegocio": [
         {
             "id": "1",
-            "descricao": "Segmentos Válidos: Verifique sempre o campo `NM_SUBSEGMENTO` ou `CD_SEGMENTO` conforme a pergunta indicar",
+            "descricao": "Segmentos Válidos: Verifique sempre o campo `NM_SUBSEGMENTO` conforme a pergunta indicar",
             "exemplo": {
                 "correto": "SELECT NM_SUBSEGMENTO FROM fisicos;",
                 "incorreto": "SELECT FL_VIVOONE FROM fisicos;"
@@ -126,6 +141,36 @@
                 "correto": "SELECT (SUM(CASE WHEN TP_MOVIMENTO = 'BAIXA' AND ID_MES BETWEEN 20230101 AND 20231231 THEN 1 ELSE 0 END) / NULLIF(SUM(CASE WHEN TP_MOVIMENTO = 'PARQUE' AND ID_MES BETWEEN 20230101 AND 20231231 THEN 1 ELSE 0 END), 0)) * 100 AS churn FROM fisicos;",
                 "incorreto": "SELECT AVG((SUM(CASE WHEN TP_MOVIMENTO = 'BAIXA' THEN 1 ELSE 0 END) / NULLIF(SUM(CASE WHEN TP_MOVIMENTO = 'PARQUE' THEN 1 ELSE 0 END), 0)) * 100) AS churn FROM fisicos GROUP BY ID_MES;"
             }
+        },
+        {
+            "id":"5",
+            "descricao": "Banda Larga é um produto específico dentro do segmento de telecomunicações. Para consultas relacionadas a Banda Larga, sempre verifique o campo `DS_PRODUTO` e use o valor 'BANDA LARGA'.",
+            "exemplo": {
+                "correto": "SELECT COUNT(*) FROM fisicos WHERE DS_PRODUTO = 'BANDA LARGA';",
+                "incorreto": "SELECT COUNT(*) FROM fisicos WHERE NM_SUBSEGMENTO = 'BANDA LARGA';"
+            }
+        }
+    ],
+    "exemplos": [
+        {
+            "natural_language": "Qual a planta?",
+            "sql": "SELECT SUM(QT_FISICO) FROM fisicos WHERE TP_MOVIMENTO = 'PARQUE'",
+            "description": "Query para extrair a soma de QT_FISICO onde o tipo de movimento é 'PARQUE'"
+        },
+        {
+            "natural_language": "Qual o parque?",
+            "sql": "SELECT SUM(QT_FISICO) FROM fisicos WHERE TP_MOVIMENTO = 'PARQUE'",
+            "description": "Query para extrair a soma de QT_FISICO onde o tipo de movimento é 'PARQUE'"
+        },
+        {
+            "natural_language": "Qual o churn médio?",
+            "sql": "SELECT ROUND((SELECT SUM(QT_FISICO) * 1.0 FROM fisicos WHERE TP_MOVIMENTO = 'BAIXA') / NULLIF((SELECT SUM(QT_FISICO) FROM fisicos WHERE TP_MOVIMENTO = 'PARQUE'), 0) * 100, 2) AS resultado_percentual;",
+            "description": "Churn Rate Calculation"
+        },
+        {
+            "natural_language": "Qual o parque de banda larga?",
+            "sql": "SELECT SUM(QT_FISICO) FROM fisicos WHERE DS_PRODUTO = 'BANDA LARGA';",
+            "description": "Parque de banda larga"
         }
     ]
 }

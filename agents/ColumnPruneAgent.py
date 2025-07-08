@@ -25,10 +25,17 @@ class ColumnPruneAgent:
         schema_descriptions = []
         for table_name in tables:
             if table_name in self.schema_info:
-                columns_desc = ", ".join([f"{c['name']} ({c['type']})" for c in self.schema_info[table_name]['columns']])
+                columns_desc = ", ".join([f"{c['name']} ({c['type']}) - Examples: {c['examples']}" for c in self.schema_info[table_name]['columns']])
                 schema_descriptions.append(f"Table '{table_name}': {columns_desc}")
 
         schema_text = "\n".join(schema_descriptions)
+
+        business_rules = []
+
+        with open('/workspaces/QueryGPT/rules.json', 'r') as file:
+            data = json.load(file)['regrasNegocio']
+            for i in data:
+                business_rules.append(i['descricao'])
 
         prompt = f"""
         Based on the following user query and the tables that have been selected, determine which columns are relevant to answer the query.
@@ -37,6 +44,9 @@ class ColumnPruneAgent:
 
         Selected Tables Schema:
         {schema_text}
+
+        Business Rules:
+        {', '.join(business_rules)}
 
         For each table, return only the columns that are necessary to answer the query.
          Respond ONLY with a JSON object with the following structure:

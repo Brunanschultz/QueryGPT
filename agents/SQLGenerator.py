@@ -51,10 +51,18 @@ class SQLGenerator:
 
         # Format sample queries for few-shot learning
         samples_text = ""
+
         for i, sample in enumerate(similar_samples):
-            samples_text += f"Example {i+1}:\n"
+            samples_text += f"Description {i+1}:\n"
             samples_text += f"Question: {sample['natural_language']}\n"
             samples_text += f"SQL: {sample['sql']}\n\n"
+
+        with open('/workspaces/QueryGPT/rules.json', 'r') as file:
+            data = json.load(file)['boasPraticas']
+            for i in data:
+                samples_text += f"Description: {i['descricao']}:\n"
+                samples_text += f"Example: {i['exemplo']}:\n"
+        
 
         prompt = f"""
         You are an expert SQL query generator. Your task is to convert natural language questions into accurate SQL queries.
@@ -62,7 +70,7 @@ class SQLGenerator:
         Database Schema:
         {schema_text}
 
-        Here are some examples of questions and their corresponding SQL queries:
+        Here are some examples of what to do and their corresponding SQL queries:
         {samples_text}
 
         Now, generate an SQL query for the following question:
