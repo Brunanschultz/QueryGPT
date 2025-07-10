@@ -125,7 +125,7 @@ export default function Chat() {
   }
 
   useEffect(() => {
-    if (params.id) {ge
+    if (params.id) {
       const chats = sessionStorage.getItem('chats')
 
       if (chats) {

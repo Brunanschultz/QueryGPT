@@ -24,7 +24,7 @@ app.add_middleware(
 async def salvar_regras(regras_req: RegrasRequest):
     regras = regras_req.regras
     import sqlite3
-    conn = sqlite3.connect("/workspaces/QueryGPT/fisicos.db")
+    conn = sqlite3.connect("fisicos.db")
     c = conn.cursor()
     c.execute("""
         CREATE TABLE IF NOT EXISTS regras (

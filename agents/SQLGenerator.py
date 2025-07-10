@@ -57,7 +57,9 @@ class SQLGenerator:
             samples_text += f"Question: {sample['natural_language']}\n"
             samples_text += f"SQL: {sample['sql']}\n\n"
 
-        with open('/workspaces/QueryGPT/rules.json', 'r') as file:
+        current_dir = os.path.dirname(__file__)
+
+        with open(os.path.join(current_dir, '..', 'rules.json'), 'r') as file:
             data = json.load(file)['boasPraticas']
             for i in data:
                 samples_text += f"Description: {i['descricao']}:\n"

@@ -1,6 +1,10 @@
 generativeai
 typing
-pandas
 sentence_transformers
 scikit-learn
 google.generativeai
+fastapi==0.115.13
+uvicorn==0.34.3
+pandas==2.3.0
+PyMySQL==1.1.1
+SQLAlchemy==2.0.41

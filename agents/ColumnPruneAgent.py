@@ -32,7 +32,9 @@ class ColumnPruneAgent:
 
         business_rules = []
 
-        with open('/workspaces/QueryGPT/rules.json', 'r') as file:
+        current_dir = os.path.dirname(__file__)
+
+        with open(os.path.join(current_dir, '..', 'rules.json'), 'r') as file:
             data = json.load(file)['regrasNegocio']
             for i in data:
                 business_rules.append(i['descricao'])
