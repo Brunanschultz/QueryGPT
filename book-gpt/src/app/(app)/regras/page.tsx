@@ -1,36 +1,36 @@
 'use client'
 
-import { useState } from 'react'
 import { useMutation } from '@tanstack/react-query'
-import TextareaAutosize from 'react-textarea-autosize'
-import { Button, Text } from '../../../components/ui'
+import { useState } from 'react'
 import toast from 'react-hot-toast'
+import TextareaAutosize from 'react-textarea-autosize'
+
+import { Button, Text } from '../../../components/ui'
+
 
 export default function Regras() {
-  const [regras, setRegras] = useState([{ regra: '', query: '' }])
+  const [regras, setRegras] = useState([{ descricao: '', query: '' }])
 
   const { mutate, status } = useMutation({
     mutationFn: async (data) => {
-      const res = await fetch('http://localhost:8000/api/regras', {
+      const res = await fetch('http://localhost:8001/api/regras', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ regras: data })
+        body: JSON.stringify({ regras: data }),
       })
       if (!res.ok) throw new Error('Erro ao salvar regras')
       return res.json()
     },
     onSuccess: () => {
       toast.success('Regras salvas com sucesso!')
-      setRegras([{ regra: '', query: '' }])
+      setRegras([{ descricao: '', query: '' }])
     },
     onError: () => toast.error('Erro ao salvar regras')
   })
 
   function handleChange(index, field, value) {
-    setRegras(prev =>
-      prev.map((item, i) =>
-        i === index ? { ...item, [field]: value } : item
-      )
+    setRegras((prev) =>
+      prev.map((item, i) => (i === index ? { ...item, [field]: value } : item))
     )
   }
 
@@ -40,17 +40,17 @@ export default function Regras() {
   }
 
   return (
-    <div className="flex flex-col items-center w-full">
+    <div className="flex w-full flex-col items-center">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-4xl bg-white p-8 flex flex-col gap-2"
+        className="flex w-full max-w-4xl flex-col gap-2 bg-white p-8"
         style={{ marginTop: 32 }}
       >
-        <Text as="p" variant="heading-sm" className="text-center mb-2">
+        <Text as="p" variant="heading-sm" className="mb-2 text-center">
           Cadastro de Regras de Negócio
         </Text>
 
-        <label className="font-medium mb-1" htmlFor="regra">
+        <label className="mb-1 font-medium" htmlFor="regra">
           Regra de Negócio
         </label>
         <TextareaAutosize
@@ -58,13 +58,13 @@ export default function Regras() {
           minRows={2}
           maxRows={10}
           placeholder="Digite a regra de negócio"
-          value={regras[0].regra}
-          onChange={e => handleChange(0, 'regra', e.target.value)}
+          value={regras[0].descricao}
+          onChange={(e) => handleChange(0, 'descricao', e.target.value)}
           disabled={status === 'pending'}
-          className="w-full border rounded-md p-3 text-base resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full resize-none rounded-md border p-3 text-base focus:ring-2 focus:ring-blue-500 focus:outline-none"
         />
 
-        <label className="font-medium mb-1" htmlFor="query">
+        <label className="mb-1 font-medium" htmlFor="query">
           Query SQL
         </label>
         <TextareaAutosize
@@ -73,9 +73,9 @@ export default function Regras() {
           maxRows={8}
           placeholder="Digite a query (SQL) relacionada à regra"
           value={regras[0].query}
-          onChange={e => handleChange(0, 'query', e.target.value)}
+          onChange={(e) => handleChange(0, 'query', e.target.value)}
           disabled={status === 'pending'}
-          className="w-full border rounded-md p-3 text-base resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full resize-none rounded-md border p-3 text-base focus:ring-2 focus:ring-blue-500 focus:outline-none"
         />
 
         <div className="flex justify-end">
@@ -90,9 +90,7 @@ export default function Regras() {
       </form>
 
       {/* Sua tabela pode vir aqui abaixo */}
-      <div className="w-full max-w-4xl mt-10">
-        {/* Tabela de regras */}
-      </div>
+      <div className="mt-10 w-full max-w-4xl">{/* Tabela de regras */}</div>
     </div>
   )
 }

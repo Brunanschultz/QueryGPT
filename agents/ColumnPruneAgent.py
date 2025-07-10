@@ -1,7 +1,8 @@
 import google.generativeai as genai
 import os
 import json
-
+import sqlite3
+import pandas as pd
 class ColumnPruneAgent:
     """Agent to prune irrelevant columns from tables"""
 
@@ -39,6 +40,19 @@ class ColumnPruneAgent:
             for i in data:
                 business_rules.append(i['descricao'])
 
+        query = "SELECT descricao, query FROM regras"
+        try:
+            conn = sqlite3.connect('../fisicos.db')
+            df = pd.read_sql_query(query, conn)
+            conn.close()
+
+            # Formatar as regras para o prompt
+            regras_prompt = ""
+            for idx, row in df.iterrows():
+                regras_prompt += f"Regra {idx+1}:\nDescrição: {row['descricao']}\nQuery: {row['query']}\n\n"
+        except Exception as e:
+            print(f"\n❌ Query falhou: {str(e)}")
+
         prompt = f"""
         Based on the following user query and the tables that have been selected, determine which columns are relevant to answer the query.
 
@@ -49,12 +63,12 @@ class ColumnPruneAgent:
 
         Business Rules:
         {', '.join(business_rules)}
+        {regras_prompt}
 
         For each table, return only the columns that are necessary to answer the query.
          Respond ONLY with a JSON object with the following structure:
         {{"pruned_schema": {{"table_name1": ["column1", "column2"], "table_name2": ["column1", "column3"]}}, "explanation": "Brief explanation of why these columns were chosen"}}
         """
-
         response = self.model.generate_content(prompt)
 
         # The response.text will be a JSON string due to the response_mime_type config

@@ -120,7 +120,7 @@
         },
         {
             "id": "2",
-            "descricao": "Parque/Planta-: Os termos 'parque' e 'planta' são equivalentes e ambos se referem à quantidade de físicos ativos, onde `TP_MOVIMENTO = 'PARQUE'",
+            "descricao": "Parque/Planta: Os termos parque e planta são equivalentes e ambos se referem à quantidade de físicos ativos, onde TP_MOVIMENTO = PARQUE",
             "exemplo": {
                 "correto": "SELECT COUNT(*) FROM fisicos WHERE TP_MOVIMENTO = 'PARQUE';",
                 "incorreto": "SELECT COUNT(*) FROM fisicos WHERE TP_MOVIMENTO = 'PLANTA';"

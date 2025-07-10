@@ -19,7 +19,6 @@ app.add_middleware(
 )
 
 
-
 @app.post("/api/regras")
 async def salvar_regras(regras_req: RegrasRequest):
     regras = regras_req.regras
@@ -29,12 +28,12 @@ async def salvar_regras(regras_req: RegrasRequest):
     c.execute("""
         CREATE TABLE IF NOT EXISTS regras (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            regra TEXT,
+            descricao TEXT,
             query TEXT
         )
     """)
     for item in regras:
-        c.execute("INSERT INTO regras (regra, query) VALUES (?, ?)", (item.regra, item.query))
+        c.execute("INSERT INTO regras (descricao, query) VALUES (?, ?)", (item.descricao, item.query))
     conn.commit()
     conn.close()
     return {"status": "ok"}
@@ -47,8 +46,7 @@ async def search(req: SQLRequest):
     # Test with a simple query
     result = query_gpt.generate_query(req.question, interactive=False)
 
-    return Response(content=str(result), media_type="text/plain")
-    
+    return JSONResponse(content=result)
 
 @app.get('/api/', tags=["root"], summary="Health Check", description="Check if the service is running.")
 async def get() -> JSONResponse:

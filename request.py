@@ -7,7 +7,7 @@ class SQLRequest(BaseModel):
 
 
 class InsertBD(BaseModel):
-    regra: str
+    descricao: str
     query: str
 
 
