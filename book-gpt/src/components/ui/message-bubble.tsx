@@ -84,15 +84,14 @@ export default function MessageBubble({
             <Text as="span" variant="body-md">
               Pensando
             </Text>
-
             <img src="/assets/images/loading.gif" alt="Carregando" width={34} />
           </div>
         ) : (
-          <Text as="span" variant="body-md">
+          // Use uma div simples ao invés do componente Text customizado
+          <div style={{ whiteSpace: 'pre-line', fontSize: '16px', lineHeight: '1.5' }}>
             {message}
-          </Text>
+          </div>
         )}
-
         <Text
           as="span"
           variant="body-sm"

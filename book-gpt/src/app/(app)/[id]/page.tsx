@@ -9,7 +9,6 @@ import toast from 'react-hot-toast'
 
 export default function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
-
   const params = useParams<{ id: string }>()
   const { postSearch } = useServices()
   const [currentChat, setCurrentChat] = useState<any>(null)
@@ -19,7 +18,8 @@ export default function Chat() {
     onSuccess: (data) => {
       const messages = [
         {
-          message: JSON.stringify(data),
+          // ✅ Correção principal: use dados formatados do backend
+          message: typeof data === 'string' ? data : data.message || data.text || JSON.stringify(data, null, 2),
           formattedDate: new Intl.DateTimeFormat('pt-BR', {
             hour: 'numeric',
             minute: 'numeric'
@@ -34,29 +34,25 @@ export default function Chat() {
         }
       ]
 
-      setCurrentChat({
-        ...currentChat,
-        messages: [...currentChat.messages, ...messages]
-      })
+      // ✅ Usar callback para estado atual
+      setCurrentChat(prev => ({
+        ...prev,
+        messages: [...prev.messages, ...messages]
+      }))
 
       const chats = sessionStorage.getItem('chats')
-
       if (chats) {
-        sessionStorage.setItem(
-          'chats',
-          JSON.stringify(
-            JSON.parse(chats).map((chat: any) => {
-              if (chat.id === params.id) {
-                return {
-                  ...currentChat,
-                  messages: [...currentChat.messages, ...messages]
-                }
-              } else {
-                return chat
-              }
-            })
-          )
-        )
+        const parsedChats = JSON.parse(chats)
+        const updatedChats = parsedChats.map((chat: any) => {
+          if (chat.id === params.id) {
+            return {
+              ...chat,
+              messages: [...chat.messages, ...messages]
+            }
+          }
+          return chat
+        })
+        sessionStorage.setItem('chats', JSON.stringify(updatedChats))
       }
 
       setTimeout(() => {
@@ -64,16 +60,16 @@ export default function Chat() {
       }, 300)
     },
     onError: (error: any) => {
-      if (error.response) {
-        if (error.response.data) {
-          toast.error(error.response.data.message)
-        }
+      if (error.response?.data?.message) {
+        toast.error(error.response.data.message)
+      } else {
+        toast.error('Erro ao processar mensagem')
       }
     }
   })
 
   function onSubmit(value: string) {
-    if (!value) return
+    if (!value.trim()) return
 
     const messages = [
       {
@@ -92,29 +88,25 @@ export default function Chat() {
       }
     ]
 
-    setCurrentChat({
-      ...currentChat,
-      messages: [...currentChat.messages, ...messages]
-    })
+    // ✅ Usar callback para estado atual
+    setCurrentChat(prev => ({
+      ...prev,
+      messages: [...prev.messages, ...messages]
+    }))
 
     const chats = sessionStorage.getItem('chats')
-
     if (chats) {
-      sessionStorage.setItem(
-        'chats',
-        JSON.stringify(
-          JSON.parse(chats).map((chat: any) => {
-            if (chat.id === params.id) {
-              return {
-                ...currentChat,
-                messages: [...currentChat.messages, ...messages]
-              }
-            } else {
-              return chat
-            }
-          })
-        )
-      )
+      const parsedChats = JSON.parse(chats)
+      const updatedChats = parsedChats.map((chat: any) => {
+        if (chat.id === params.id) {
+          return {
+            ...chat,
+            messages: [...chat.messages, ...messages]
+          }
+        }
+        return chat
+      })
+      sessionStorage.setItem('chats', JSON.stringify(updatedChats))
     }
 
     setTimeout(() => {
@@ -127,30 +119,27 @@ export default function Chat() {
   useEffect(() => {
     if (params.id) {
       const chats = sessionStorage.getItem('chats')
-
       if (chats) {
-        setCurrentChat(
-          JSON.parse(chats).find((item: any) => item.id === params.id)
-        )
+        const chat = JSON.parse(chats).find((item: any) => item.id === params.id)
+        setCurrentChat(chat)
       }
     }
-  }, [params])
+  }, [params.id])
 
   return (
     <div className="z-10 flex h-screen flex-1 flex-col">
       <div className="h-[calc(100vh-56px)] overflow-auto">
         <div className="m-auto flex max-w-3xl flex-col gap-4 px-6 py-8">
-          {currentChat &&
-            currentChat.messages.map((message: any, index: number) => (
-              <MessageBubble
-                key={index}
-                message={message.message}
-                formattedDate={message.formattedDate}
-                isSender={message.isSender}
-                user={message.user}
-                file={message.file}
-              />
-            ))}
+          {currentChat?.messages?.map((message: any, index: number) => (
+            <MessageBubble
+              key={index}
+              message={message.message}
+              formattedDate={message.formattedDate}
+              isSender={message.isSender}
+              user={message.user}
+              file={message.file}
+            />
+          ))}
 
           {status === 'pending' && (
             <MessageBubble

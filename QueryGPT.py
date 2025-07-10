@@ -67,7 +67,7 @@ class QueryGPT:
             similar_samples
         )
         results["sql_result"] = sql_result
-        print("\n✅ SQL Query Generated:")
+        print("\n✅ SQL Query Gerada:")
         print("\n" + sql_result["sql"] + "\n")
 
         # Step 6: Execute query to validate (optional)

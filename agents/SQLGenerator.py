@@ -67,20 +67,21 @@ class SQLGenerator:
         
 
         prompt = f"""
-        You are an expert SQL query generator. Your task is to convert natural language questions into accurate SQL queries.
+        Você é um especialista em geração de consultas SQL. Sua tarefa é converter perguntas em linguagem natural em consultas SQL precisas.
 
-        Database Schema:
+        Esquema do Banco de Dados:
         {schema_text}
 
-        Here are some examples of what to do and their corresponding SQL queries:
+        Aqui estão alguns exemplos do que fazer e suas respectivas consultas SQL:
         {samples_text}
 
-        Now, generate an SQL query for the following question:
-        Question: {user_query}
+        Agora, gere uma consulta SQL para a seguinte pergunta:
+        Pergunta: {user_query}
 
-        Respond ONLY with a JSON object with the following structure:
-        {{"sql": "The generated SQL query", "explanation": "A step-by-step explanation of how the query works"}}
+        Responda SOMENTE com um objeto JSON com a seguinte estrutura em português (BR):
+        {{"sql": "A consulta SQL gerada", "explanation": "Uma explicação passo a passo de como a consulta funciona"}}
         """
+
 
         response = self.model.generate_content(prompt)
     

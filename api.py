@@ -4,6 +4,23 @@ from request import SQLRequest, RegrasRequest
 from fastapi.responses import JSONResponse, Response
 from QueryGPT import QueryGPT
 
+def gerar_relatorio(api_response):
+
+    return f'''
+    Consulta do usuário: {api_response["user_query"]}
+
+    Etapas:
+    1. Intenção: {api_response["intent"]["explanation"]}
+    2. Tabela utilizada: {api_response["tables"]["explanation"]}
+    3. Colunas selecionadas: {api_response["pruned_schema"]["explanation"]}
+    4. Consulta SQL executada: {api_response["sql_result"]["sql"]}
+    Explicação: {api_response["sql_result"]["explanation"]}
+
+    Resultado:
+    {api_response['query_result']}.
+    '''.strip()
+
+
 app = FastAPI(
     title="API",
     description="API",
@@ -46,7 +63,7 @@ async def search(req: SQLRequest):
     # Test with a simple query
     result = query_gpt.generate_query(req.question, interactive=False)
 
-    return JSONResponse(content=result)
+    return JSONResponse(content=gerar_relatorio(result))
 
 @app.get('/api/', tags=["root"], summary="Health Check", description="Check if the service is running.")
 async def get() -> JSONResponse:

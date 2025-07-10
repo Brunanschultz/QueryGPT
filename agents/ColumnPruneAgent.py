@@ -41,34 +41,35 @@ class ColumnPruneAgent:
                 business_rules.append(i['descricao'])
 
         query = "SELECT descricao, query FROM regras"
-        try:
-            conn = sqlite3.connect('../fisicos.db')
-            df = pd.read_sql_query(query, conn)
-            conn.close()
 
-            # Formatar as regras para o prompt
-            regras_prompt = ""
-            for idx, row in df.iterrows():
-                regras_prompt += f"Regra {idx+1}:\nDescrição: {row['descricao']}\nQuery: {row['query']}\n\n"
-        except Exception as e:
-            print(f"\n❌ Query falhou: {str(e)}")
+        db_path = os.path.join(current_dir, '..', 'fisicos.db')
+        conn = sqlite3.connect(db_path)
+        df = pd.read_sql_query(query, conn)
+        conn.close()
+
+        # Formatar as regras para o prompt
+        regras_prompt = ""
+        for idx, row in df.iterrows():
+            regras_prompt += f"Regra {idx+1}:\nDescrição: {row['descricao']}\nQuery: {row['query']}\n\n"
+
 
         prompt = f"""
-        Based on the following user query and the tables that have been selected, determine which columns are relevant to answer the query.
+        Com base na seguinte consulta do usuário e nas tabelas que foram selecionadas, determine quais colunas são relevantes para responder à consulta.
 
-        User Query: "{user_query}"
+        Consulta do Usuário: "{user_query}"
 
-        Selected Tables Schema:
+        Esquema das Tabelas Selecionadas:
         {schema_text}
 
-        Business Rules:
+        Regras de Negócio:
         {', '.join(business_rules)}
         {regras_prompt}
 
-        For each table, return only the columns that are necessary to answer the query.
-         Respond ONLY with a JSON object with the following structure:
-        {{"pruned_schema": {{"table_name1": ["column1", "column2"], "table_name2": ["column1", "column3"]}}, "explanation": "Brief explanation of why these columns were chosen"}}
+        Para cada tabela, retorne apenas as colunas que são necessárias para responder à consulta.
+        Responda SOMENTE com um objeto JSON com a seguinte estrutura em português (BR):
+        {{"pruned_schema": {{"nome_tabela1": ["coluna1", "coluna2"], "nome_tabela2": ["coluna1", "coluna3"]}}, "explanation": "Breve explicação do motivo da escolha dessas colunas"}}
         """
+
         response = self.model.generate_content(prompt)
 
         # The response.text will be a JSON string due to the response_mime_type config

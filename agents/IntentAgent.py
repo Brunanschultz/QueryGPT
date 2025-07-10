@@ -23,15 +23,15 @@ class IntentAgent:
         self.workspaces = ["fisicos","outro"]
 
     def determine_intent(self, user_query: str) -> dict:
-        """Map user's natural language query to a workspace(s)"""
+        """Mapeie a consulta em linguagem natural do usuário para um ou mais workspaces"""
         prompt = f"""
-        Based on the following user query, determine which workspace or workspaces it belongs to.
-        The available workspaces are: {', '.join(self.workspaces)}
+        Com base na seguinte consulta do usuário, determine a qual workspace ou workspaces ela pertence.
+        Os workspaces disponíveis são: {', '.join(self.workspaces)}
 
-        User Query: "{user_query}"
+        Consulta do Usuário: "{user_query}"
 
-        Respond ONLY with a JSON object with the following structure:
-        {{"workspaces": ["workspace1", "workspace2"], "explanation": "Brief explanation of why these workspaces were chosen"}}
+        Responda SOMENTE com um objeto JSON com a seguinte estrutura em português (BR):
+        {{"workspaces": ["workspace1", "workspace2"], "explanation": "Breve explicação do motivo da escolha desses workspaces"}}
         """
         response = self.model.generate_content(prompt)
 

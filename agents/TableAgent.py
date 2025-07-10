@@ -21,7 +21,7 @@ class TableAgent:
         self.schema_info = schema_info
 
     def determine_tables(self, user_query: str, workspace: str) -> dict:
-        """Determine which tables are needed to answer the query"""
+        """Determina quais tabelas são necessárias na query"""
         # Create schema descriptions for the prompt
         schema_descriptions = []
         for table_name, info in self.schema_info.items():
@@ -31,17 +31,18 @@ class TableAgent:
         schema_text = "\n".join(schema_descriptions)
 
         prompt = f"""
-        Based on the following user query and database schema, determine which tables are needed to answer the query.
+        Com base na seguinte consulta do usuário e no esquema do banco de dados, determine quais tabelas são necessárias para responder à consulta.
 
-        User Query: "{user_query}"
+        Consulta do Usuário: "{user_query}"
         Workspace: {workspace}
 
-        Database Schema:
+        Esquema do Banco de Dados:
         {schema_text}
 
-        Respond ONLY with a JSON object with the following structure:
-        {{"tables": ["table1", "table2"], "explanation": "Brief explanation of why these tables were chosen"}}
+        Responda SOMENTE com um objeto JSON com a seguinte estrutura em português (BR):
+        {{"tables": ["tabela1", "tabela2"], "explanation": "Breve explicação do motivo da escolha dessas tabelas"}}
         """
+
 
         response = self.model.generate_content(prompt)
         # The response.text will be a JSON string due to the response_mime_type config
