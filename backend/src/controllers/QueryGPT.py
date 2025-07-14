@@ -88,7 +88,8 @@ class QueryGPT:
             results["execution_error"] = str(e)
             print(f"\n❌ Query falhou: {str(e)}")
 
-        return self.gerar_relatorio(results)
+        print(results)
+        return self.formatar_resposta(self.gerar_relatorio(results))
     
     def gerar_relatorio(self, api_response: dict):
 
@@ -107,3 +108,6 @@ class QueryGPT:
         Resultado:
         {answer}.
         '''.strip()
+    
+    def formatar_resposta(self, resposta):
+        return resposta.replace('\n', '<br>')

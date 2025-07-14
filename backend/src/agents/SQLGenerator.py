@@ -1,6 +1,6 @@
-from utils.llmOutput import format_llm_output_to_dict
 from sklearn.metrics.pairwise import cosine_similarity
 from utils.vectors import QueryVectorizer
+from models.model import gemini_model_instance
 import google.generativeai as genai
 import json 
 import os
@@ -11,20 +11,8 @@ class SQLGenerator:
     """Generate SQL from natural language using LLM"""
 
     def __init__(self, schema_info: dict, sample_queries: list):
-        # Configure the Google AI API using an environment variable for security
-        genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
-
-        # Set up the model with generation config
-        # 'gemini-2.0-flash' is fast and cost-effective.
-        # For maximum quality, you might consider 'gemini-1.5-pro-latest'.
-        generation_config = {
-            "temperature": 0.1,
-            "response_mime_type": "application/json", # Ensures the output is valid JSON
-        }
-        self.model = genai.GenerativeModel(
-            'gemini-2.0-flash',
-            generation_config=generation_config
-        )
+        
+        self.model = gemini_model_instance.model
         self.schema_info = schema_info
         self.sample_queries = sample_queries
 

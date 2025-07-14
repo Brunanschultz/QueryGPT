@@ -23,8 +23,8 @@ class Connection:
             else:
                 self.db_path = db_path
         
-        print(f"📂 Caminho do banco: {self.db_path}")
-        print(f"📁 Arquivo existe: {os.path.exists(self.db_path)}")
+        #print(f"📂 Caminho do banco: {self.db_path}")
+        #print(f"📁 Arquivo existe: {os.path.exists(self.db_path)}")
         
         self.connection = None
         self.cursor = None

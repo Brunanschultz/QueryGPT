@@ -24,6 +24,7 @@ interface MessageBubbleProps {
     status: 'AVAILABLE' | 'OFF' | 'ABSENT' | 'BUSY'
   }
   onDownload?: () => void
+  allowHtml?: boolean
 }
 
 export default function MessageBubble({
@@ -33,7 +34,8 @@ export default function MessageBubble({
   isSender,
   file,
   user,
-  onDownload
+  onDownload,
+  allowHtml = false
 }: MessageBubbleProps) {
   return (
     <div
@@ -62,11 +64,9 @@ export default function MessageBubble({
             <div className="flex items-center gap-2">
               <div className="flex flex-row items-center gap-2">
                 <LuFile className="size-4 text-[var(--text-color-brand)]" />
-
                 <Text as="p" variant="body-md" className="font-semibold">
                   {file.name}
                 </Text>
-
                 <IconButton
                   icon={LuDownload}
                   onClick={onDownload}
@@ -79,6 +79,7 @@ export default function MessageBubble({
           </div>
         )}
 
+        {/* ✅ Renderização única combinada */}
         {loading ? (
           <div className="flex">
             <Text as="span" variant="body-md">
@@ -86,12 +87,17 @@ export default function MessageBubble({
             </Text>
             <img src="/assets/images/loading.gif" alt="Carregando" width={34} />
           </div>
+        ) : allowHtml ? (
+          <div
+            dangerouslySetInnerHTML={{ __html: message }}
+            style={{ whiteSpace: 'pre-line', fontSize: '16px', lineHeight: '1.5' }}
+          />
         ) : (
-          // Use uma div simples ao invés do componente Text customizado
           <div style={{ whiteSpace: 'pre-line', fontSize: '16px', lineHeight: '1.5' }}>
             {message}
           </div>
         )}
+
         <Text
           as="span"
           variant="body-sm"

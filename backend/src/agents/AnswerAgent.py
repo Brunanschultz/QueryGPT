@@ -1,9 +1,7 @@
 
-import google.generativeai as genai
+from models.model import gemini_model_instance
 from typing import Dict, Any
 import json
-import os
-
 
 class AnswerAgent:
     def __init__(self, api_key: str = None):
@@ -13,17 +11,7 @@ class AnswerAgent:
         Args:
             api_key (str): Chave da API do Google Gemini
         """
-        genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
-
-        # Set up the model with generation config
-        generation_config = {
-            "temperature": 0.1,
-            "response_mime_type": "application/json", # Ensures the output is valid JSON
-        }
-        self.model = genai.GenerativeModel(
-            'gemini-2.0-flash',
-            generation_config=generation_config
-        )
+        self.model = gemini_model_instance.model
         
     def processar_consulta(self, consulta_usuario: str, dados_resultado: Dict[str, Any]) -> str:
         """
@@ -45,16 +33,30 @@ class AnswerAgent:
             
             # Processar e limpar a resposta
             resposta_processada = self._processar_resposta(response.text)
-
+            
+            # Debug: verificar o que está sendo processado
+            print(f"Resposta processada: {resposta_processada}")
+            print(f"Tipo: {type(resposta_processada)}")
+            
+            # Tentar fazer o parse do JSON
             response_dict = json.loads(resposta_processada)
-
+            
+            # Verificar se é realmente um dicionário
+            if not isinstance(response_dict, dict):
+                return resposta_processada
+                # raise ValueError(f"Resposta não é um dicionário: {type(response_dict)}")
+            
             valor = list(response_dict.values())[0]
-           
             return valor
             
+        except json.JSONDecodeError as e:
+            print(f"Erro ao decodificar JSON: {e}")
+            print(f"Conteúdo que causou erro: {resposta_processada}")
+            return None
         except Exception as e:
-            return f"Erro ao processar consulta: {str(e)}"
-    
+            print(f"Erro inesperado: {e}")
+            return None
+        
     def _criar_prompt(self, consulta: str, dados: Dict[str, Any]) -> str:
         """
         Cria o prompt estruturado para o Gemini

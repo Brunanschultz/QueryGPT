@@ -138,6 +138,7 @@ export default function Chat() {
               isSender={message.isSender}
               user={message.user}
               file={message.file}
+              allowHtml={!message.isSender}
             />
           ))}
 

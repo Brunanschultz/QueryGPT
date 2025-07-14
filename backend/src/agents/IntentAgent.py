@@ -1,25 +1,13 @@
-from utils.llmOutput import format_llm_output_to_dict
-import google.generativeai as genai
-import os
+from models.model import gemini_model_instance
 import json
 
 class IntentAgent:
     """Agent to determine the intent of a user's natural language query"""
 
     def __init__(self):
-        # Configure the Google AI API using an environment variable for security
-        genai.configure(api_key=os.environ["GOOGLE_API_KEY"])
 
-        # Set up the model with generation config
-        generation_config = {
-            "temperature": 0.1,
-            "response_mime_type": "application/json", # Ensures the output is valid JSON
-        }
-        self.model = genai.GenerativeModel(
-            'gemini-2.0-flash',
-            generation_config=generation_config
-        )
-        # Define possible workspaces
+        self.model = gemini_model_instance.model
+
         self.workspaces = ["fisicos","outro"]
 
     def determine_intent(self, user_query: str) -> dict:
